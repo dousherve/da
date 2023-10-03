@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <stdarg.h>
 
 void	da_init(t_da *da, size_t size)
 {
@@ -60,13 +59,19 @@ char	*sb_cstr(t_sb *sb)
 	return (str);
 }
 
+void	sb_vappend_many_null(t_sb *sb, va_list ap)
+{
+	const char	*str;
+
+	while ((str = va_arg(ap, const char *)))
+		sb_append(sb, str);
+}
+
 void	sb_append_many_null(t_sb *sb, ...)
 {
 	va_list		ap;
-	const char	*str;
 
 	va_start(ap, sb);
-	while ((str = va_arg(ap, const char *)))
-		sb_append(sb, str);
+	sb_vappend_many_null(sb, ap);
 	va_end(ap);
 }

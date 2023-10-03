@@ -2,6 +2,7 @@
 # define DA_H
 
 # include <stdlib.h>
+# include <stdarg.h>
 
 # define DA_INIT_CAP 128
 
@@ -29,6 +30,7 @@ typedef struct s_da t_sb;
 # define sb_free(sb) da_free((sb))
 
 char	*sb_cstr(t_sb *sb);
+void	sb_vappend_many_null(t_sb *sb, va_list ap);
 void	sb_append_many_null(t_sb *sb, ...);
 
 #endif
