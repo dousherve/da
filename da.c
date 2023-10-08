@@ -13,7 +13,7 @@ void	da_init(t_da *da, size_t size)
 
 void	da_append(t_da *da, const void *element)
 {
-	if (da->len >= da->capacity)
+	if (da->len * da->element_size >= da->capacity)
 	{
 		da->capacity = (da->capacity == 0) ? DA_INIT_CAP : (da->capacity * 2);
 		da->data = realloc(da->data, da->capacity * da->element_size);
@@ -27,7 +27,7 @@ void	da_append(t_da *da, const void *element)
 	da->len++;
 }
 
-void	da_append_many(t_da *da, const void *elements, size_t count)
+void	da_append_arr(t_da *da, const void *elements, size_t count)
 {
 	const char	*src;
 	size_t	i;
@@ -39,6 +39,32 @@ void	da_append_many(t_da *da, const void *elements, size_t count)
 		da_append(da, src + (i * da->element_size));
 		i++;
 	}
+}
+
+void	da_append_many_null(t_da *da, ...)
+{
+	va_list	ap;
+	void	*element;
+
+	va_start(ap, da);
+	while ((element = va_arg(ap, void *)))
+		da_append(da, element);
+	va_end(ap);
+}
+
+void	da_pop(t_da *da)
+{
+	if (da->len < 1)
+		return ;
+	memset(da->data + (da->len - 1) * da->element_size, 0, da->element_size);
+	da->len--;
+}
+
+void	*da_get(t_da *da, size_t index)
+{
+	if (index >= da->len)
+		return (NULL);
+	return (da->data + (index * da->element_size));
 }
 
 void	da_free(t_da *da)
@@ -57,21 +83,4 @@ char	*sb_cstr(t_sb *sb)
 	if (str[sb->len - 1])
 		sb_null_terminate(sb);
 	return (str);
-}
-
-void	sb_vappend_many_null(t_sb *sb, va_list ap)
-{
-	const char	*str;
-
-	while ((str = va_arg(ap, const char *)))
-		sb_append(sb, str);
-}
-
-void	sb_append_many_null(t_sb *sb, ...)
-{
-	va_list		ap;
-
-	va_start(ap, sb);
-	sb_vappend_many_null(sb, ap);
-	va_end(ap);
 }

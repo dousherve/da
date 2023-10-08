@@ -3,4 +3,6 @@
 libda.a
 
 obj/
-!test/*.c
+
+test/da_test
+test/*.o
