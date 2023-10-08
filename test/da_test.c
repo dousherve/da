@@ -63,7 +63,8 @@ int	main(int argc, char **argv)
 		t_response *r = da_get(&da, i);
 		printf("a = %d, b = %d\n", r->a, r->b);
 	}
-	
+	printf("\n");
+
 	da_pop(&da);
 	dump_da(&da);
 
