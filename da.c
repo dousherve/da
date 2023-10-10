@@ -75,6 +75,25 @@ void	da_free(t_da *da)
 	da->capacity = 0;
 }
 
+void da_dump(t_da *da)
+{
+	const char	*data;
+
+	data = da->data;
+	printf("da: element_size = %zu, len = %zu, capacity = %zu\n",
+		da->element_size, da->len, da->capacity);
+	printf("Raw: ");
+	for (size_t i = 0; i < da->len * da->element_size; ++i)
+	{
+		printf("%02X", data[i]);
+		if (i < da->len * da->element_size - 1 && (i + 1) % da->element_size == 0)
+			printf(", ");
+		else
+			printf(" ");
+	}
+	printf("\n");
+}
+
 char	*sb_cstr(t_sb *sb)
 {
 	char	*str;
@@ -83,4 +102,13 @@ char	*sb_cstr(t_sb *sb)
 	if (str[sb->len - 1])
 		sb_null_terminate(sb);
 	return (str);
+}
+
+void sb_dump(t_sb *sb)
+{
+	const char	*str;
+
+	str = sb_cstr(sb);
+	printf("Built \"%s\", len %zu\n", str, strlen(str));
+	da_dump(sb);
 }

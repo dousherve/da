@@ -22,6 +22,7 @@ void	da_append_many_null(t_da *da, ...);
 void	da_pop(t_da *da);
 void	*da_get(t_da *da, size_t index);
 void	da_free(t_da *da);
+void	da_dump(t_da *da);
 
 # define da_append_many(da, ...) da_append_many_null((da), __VA_ARGS__, 0)
 
@@ -35,5 +36,6 @@ typedef struct s_da t_sb;
 # define sb_free(sb) da_free((sb))
 
 char	*sb_cstr(t_sb *sb);
+void	sb_dump(t_sb *sb);
 
 #endif
