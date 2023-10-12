@@ -15,8 +15,7 @@ typedef struct s_da
 	size_t	capacity;
 }	t_da;
 
-t_da	*da_create(size_t size);
-void	da_init(t_da *da, size_t size);
+t_da	*da_init(size_t size);
 void	da_append(t_da *da, const void *element);
 void	da_append_arr(t_da *da, const void *elements, size_t count);
 void	da_append_many_null(t_da *da, ...);
@@ -35,8 +34,7 @@ void	da_dump(t_da *da);
 */
 typedef struct s_da t_sb;
 
-# define sb_create() da_create(sizeof(char *))
-# define sb_init(sb) da_init((sb), sizeof(char *))
+# define sb_init(sb) da_init(sizeof(char *))
 # define sb_get(sb, i) (*(char **) da_get((sb), (i)))
 
 void	sb_append_ptr(t_sb *sb, const char *str);

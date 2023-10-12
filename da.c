@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-t_da	*da_create(size_t size)
+t_da	*da_init(size_t size)
 {
 	t_da	*da;
 
@@ -13,16 +13,11 @@ t_da	*da_create(size_t size)
 		perror("Failed to allocate dynamic array");
 		return (NULL);
 	}
-	da_init(da, size);
-	return (da);
-}
-
-void	da_init(t_da *da, size_t size)
-{
 	da->data = NULL;
 	da->element_size = size;
 	da->len = 0;
 	da->capacity = 0;
+	return (da);
 }
 
 static void	da_realloc(t_da *da)
