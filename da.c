@@ -102,7 +102,7 @@ void da_dump(t_da *da)
 	You must NOT `free` it manually, as it will be freed
 	automatically when calling `sb_free`.
 */
-void	sb_append_raw(t_sb *sb, const char *ptr)
+void	sb_append_ptr(t_sb *sb, const char *ptr)
 {
 	da_realloc(sb);
 	((char **) sb->data)[sb->len++] = (char *) ptr;
@@ -156,6 +156,10 @@ void	sb_append_many_null(t_sb *sb, ...)
 	va_end(ap);
 }
 
+/*
+	Pop the last string added.
+	It is now your responsiblity to free the returned pointer.
+*/
 char	*sb_pop(t_sb *sb)
 {
 	char	*str;

@@ -27,6 +27,7 @@ int	main(int argc, char **argv)
 
 	popped = sb_pop(&sb);
 	printf("\nPopped: \"%s\"\n\n", popped);
+	free(popped);
 	sb_dump(&sb);
 	sb_append(&sb, argv[argc - 1]);
 	printf("\nReplaced with: \"%s\"\n\n", argv[argc - 1]);
@@ -36,7 +37,7 @@ int	main(int argc, char **argv)
 	sb_init(&sb2);
 	char *s = malloc(5);
 	strncpy(s, "abcd", 5);
-	sb_append_raw(&sb2, s);
+	sb_append_ptr(&sb2, s);
 	sb_dump(&sb2);
 	printf("\nAppending ' ' and 2 chars\n\n");
 	sb_append(&sb2, " ");
