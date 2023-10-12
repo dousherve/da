@@ -4,7 +4,7 @@
 # include <stdlib.h>
 # include <stdarg.h>
 
-# define DA_INIT_CAP 128
+# define DA_INIT_CAP 8
 
 // Dynamic array
 typedef struct s_da
@@ -15,6 +15,7 @@ typedef struct s_da
 	size_t	capacity;
 }	t_da;
 
+t_da	*da_create(size_t size);
 void	da_init(t_da *da, size_t size);
 void	da_append(t_da *da, const void *element);
 void	da_append_arr(t_da *da, const void *elements, size_t count);
@@ -34,6 +35,7 @@ void	da_dump(t_da *da);
 */
 typedef struct s_da t_sb;
 
+# define sb_create(sb) da_create(sizeof(char *))
 # define sb_init(sb) da_init((sb), sizeof(char *))
 # define sb_get(sb, i) (*(char **) da_get((sb), (i)))
 

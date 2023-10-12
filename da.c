@@ -3,6 +3,20 @@
 #include <stdio.h>
 #include <string.h>
 
+t_da	*da_create(size_t size)
+{
+	t_da	*da;
+
+	da = malloc(sizeof(t_da));
+	if (!da)
+	{
+		perror("Failed to allocate dynamic array");
+		return (NULL);
+	}
+	da_init(da, size);
+	return (da);
+}
+
 void	da_init(t_da *da, size_t size)
 {
 	da->data = NULL;
