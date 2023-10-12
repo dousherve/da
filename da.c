@@ -11,7 +11,7 @@ void	da_init(t_da *da, size_t size)
 	da->capacity = 0;
 }
 
-void	da_append(t_da *da, const void *element)
+static void	da_realloc(t_da *da)
 {
 	if (da->len * da->element_size >= da->capacity)
 	{
@@ -19,10 +19,15 @@ void	da_append(t_da *da, const void *element)
 		da->data = realloc(da->data, da->capacity * da->element_size);
 		if (!da->data)
 		{
-			perror("Failed to (re)alloc dynamic array");
+			perror("Failed to (re)alloc dynamic array data");
 			exit(1);
 		}
 	}
+}
+
+void	da_append(t_da *da, const void *element)
+{
+	da_realloc(da);
 	memcpy(da->data + (da->len * da->element_size), element, da->element_size);
 	da->len++;
 }
@@ -54,10 +59,8 @@ void	da_append_many_null(t_da *da, ...)
 
 void	da_pop(t_da *da)
 {
-	if (da->len < 1)
-		return ;
-	memset(da->data + (da->len - 1) * da->element_size, 0, da->element_size);
-	da->len--;
+	if (da->len > 0)
+		da->len--;
 }
 
 void	*da_get(t_da *da, size_t index)
@@ -94,21 +97,101 @@ void da_dump(t_da *da)
 	printf("\n");
 }
 
-char	*sb_cstr(t_sb *sb)
+void	sb_append(t_sb *sb, const char *str)
+{
+	da_realloc(sb);
+	((char **) sb->data)[sb->len++] = strdup(str);
+}
+
+void	sb_append_arr(t_sb *sb, const char **strs, size_t count)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < count)
+		sb_append(sb, strs[i++]);
+}
+
+void	sb_append_many_null(t_sb *sb, ...)
+{
+	va_list		ap;
+	const char	*str;
+
+	va_start(ap, sb);
+	while ((str = va_arg(ap, const char *)))
+		sb_append(sb, str);
+	va_end(ap);
+}
+
+char	*sb_pop(t_sb *sb)
 {
 	char	*str;
 
-	str = (char *) sb->data;
-	if (str[sb->len - 1])
-		sb_null_terminate(sb);
+	str = NULL;
+	if (sb->len > 0)
+	{
+		str = sb_get(sb, sb->len - 1);
+		da_pop(sb);
+	}
 	return (str);
+}
+
+static size_t	sb_len(t_sb *sb)
+{
+	size_t	len;
+	size_t	i;
+
+	len = 0;
+	i = 0;
+	while (i < sb->len)
+		len += strlen(sb_get(sb, i++));
+	return (len);
+}
+
+char	*sb_build(t_sb *sb)
+{
+	char	*res;
+	char	*str;
+	size_t	res_len;
+	size_t	len;
+	size_t	i;
+
+	i = 0;
+	res = malloc(sb_len(sb) + 1);
+	if (!res)
+	{
+		perror("Failed to allocate string");
+		return (NULL);
+	}
+	res_len = 0;
+	i = 0;
+	while (i < sb->len)
+	{
+		str = sb_get(sb, i++);
+		len = strlen(str);
+		strncpy(res + res_len, str, len);
+		res_len += len;
+	}
+	res[res_len] = '\0';
+	return (res);
 }
 
 void sb_dump(t_sb *sb)
 {
-	const char	*str;
+	char	*str;
 
-	str = sb_cstr(sb);
+	str = sb_build(sb);
 	printf("Built \"%s\", len %zu\n", str, strlen(str));
+	free(str);
 	da_dump(sb);
+}
+
+void	sb_free(t_sb *sb)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < sb->len)
+		free(sb_get(sb, i++));
+	da_free(sb);
 }
