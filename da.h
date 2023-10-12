@@ -26,13 +26,20 @@ void	da_dump(t_da *da);
 
 # define da_append_many(da, ...) da_append_many_null((da), __VA_ARGS__, 0)
 
-// String builder
+/*
+	String Builder
+	Though it is `typedef`'ed to a regular `struct s_da`,
+	do NOT use the methods prefixed with `da_` with
+	this type.
+*/
 typedef struct s_da t_sb;
 
 # define sb_init(sb) da_init((sb), sizeof(char *))
 # define sb_get(sb, i) (*(char **) da_get((sb), (i)))
 
+void	sb_append_raw(t_sb *sb, const char *str);
 void	sb_append(t_sb *sb, const char *str);
+void	sb_append_n(t_sb *sb, const char *str, size_t n);
 void	sb_append_arr(t_sb *sb, const char **strs, size_t count);
 void	sb_append_many_null(t_sb *sb, ...);
 char	*sb_pop(t_sb *sb);
