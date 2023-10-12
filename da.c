@@ -82,9 +82,7 @@ void	*da_get(t_da *da, size_t index)
 void	da_free(t_da *da)
 {
 	free(da->data);
-	da->data = NULL;
-	da->len = 0;
-	da->capacity = 0;
+	free(da);
 }
 
 void da_dump(t_da *da)
