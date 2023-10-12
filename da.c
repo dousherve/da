@@ -115,25 +115,6 @@ void	sb_append(t_sb *sb, const char *str)
 	((char **) sb->data)[sb->len++] = strdup(str);
 }
 
-// See https://opensource.apple.com/source/Libc/Libc-262/i386/gen/strncpy.c.auto.html
-static char	*sb_strncpy(char *dst, const char *src, size_t n)
-{
-	if (n != 0)
-	{
-		char *d = dst;
-		const char *s = src;
-
-		do {
-			if ((*d++ = *s++) == 0) {
-				while (--n != 0)
-					*d++ = 0;
-				break;
-			}
-		} while (--n != 0);
-	}
-	return (dst);
-}
-
 // Append a string composed of at most `n` characters of `str`.
 void	sb_append_n(t_sb *sb, const char *str, size_t n)
 {
@@ -149,7 +130,8 @@ void	sb_append_n(t_sb *sb, const char *str, size_t n)
 			perror("Failed to allocate string");
 			return;
 		}
-		sb_strncpy(to_append, str, n);
+		strncpy(to_append, str, n);
+		to_append[n] = '\0';
 		sb_append(sb, to_append);
 		free(to_append);
 	}
