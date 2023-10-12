@@ -35,7 +35,7 @@ void	da_dump(t_da *da);
 */
 typedef struct s_da t_sb;
 
-# define sb_create(sb) da_create(sizeof(char *))
+# define sb_create() da_create(sizeof(char *))
 # define sb_init(sb) da_init((sb), sizeof(char *))
 # define sb_get(sb, i) (*(char **) da_get((sb), (i)))
 
