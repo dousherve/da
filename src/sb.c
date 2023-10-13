@@ -32,6 +32,26 @@ void	sb_append_n(t_sb *sb, const char *str, size_t n)
 	}
 }
 
+void	sb_append_arr(t_sb *sb, const char **strs, size_t count)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < count)
+		sb_append(sb, strs[i++]);
+}
+
+void	sb_append_many_null(t_sb *sb, ...)
+{
+	va_list		ap;
+	const char	*str;
+
+	va_start(ap, sb);
+	while ((str = va_arg(ap, const char *)))
+		sb_append(sb, str);
+	va_end(ap);
+}
+
 static size_t	sb_len(t_sb *sb)
 {
 	size_t	len;

@@ -4,7 +4,7 @@
 # include <stdlib.h>
 # include <stdarg.h>
 
-# define DA_INIT_CAP 8
+# define DA_INIT_CAP 32
 
 void	data_realloc(void **data, size_t element_size, size_t *len, size_t *capacity);
 
