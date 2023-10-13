@@ -73,6 +73,7 @@ void	dap_free(t_dap *dap)
 	i = 0;
 	while (i < dap->len)
 		free(dap_get(dap, i++));
+	free(dap->ptrs);
 	free(dap);
 }
 
