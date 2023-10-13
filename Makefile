@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
 
-SOURCES = da.c
+SOURCES = da.c dap.c sb.c
 LIBRARY = libda.a
 
 TEST_SOURCES = test/da_test.c

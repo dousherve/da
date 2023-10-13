@@ -2,6 +2,8 @@
 #include <string.h>
 
 #include "../da.h"
+#include "../dap.h"
+#include "../sb.h"
 
 typedef struct s_response
 {
@@ -11,9 +13,13 @@ typedef struct s_response
 
 int	main(int argc, char **argv)
 {
-	t_sb	*sb, *sb2;
-	t_da	*da;
-	t_response r1 = {1, 2}, r2 = {3, 4}, r3 = {5, 6};
+	t_sb		*sb, *sb2;
+	t_da		*da;
+	t_dap		*dap;
+
+	t_response	r1 = {1, 2}, r2 = {3, 4}, r3 = {5, 6};
+	t_response	*mr1, *mr2;
+
 	char	*popped;
 
 	sb = sb_init();
@@ -54,13 +60,39 @@ int	main(int argc, char **argv)
 		t_response *r = da_get(da, i);
 		printf("a = %d, b = %d\n", r->a, r->b);
 	}
-	printf("\n");
 
 	da_pop(da);
+	printf("\n");
 	da_dump(da);
+
+	printf("\n\n==== dap ====\n\n");
+
+	dap = dap_init();
+	mr1 = malloc(sizeof(t_response));
+	mr2 = malloc(sizeof(t_response));
+	mr1->a = 4;
+	mr1->b = 2;
+	mr2->a = 69;
+	mr2->b = 420;
+	dap_append_many(dap, mr1, mr2);
+	for (size_t i = 0; i < dap->len; i++)
+	{
+		t_response *r = dap_get(dap, i);
+		printf("mr%zu: a = %d, b = %d\n", i + 1, r->a, r->b);
+	}
+	printf("\n");
+	dap_pop_free(dap);
+	for (size_t i = 0; i < dap->len; i++)
+	{
+		t_response *r = dap_get(dap, i);
+		printf("mr%zu: a = %d, b = %d\n", i + 1, r->a, r->b);
+	}
+
+	printf("\nTest end. Freeing memory.\n");
 
 	sb_free(sb);
 	sb_free(sb2);
 	da_free(da);
+	dap_free(dap);
 	return (0);
 }
