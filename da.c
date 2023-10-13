@@ -34,17 +34,6 @@ static void	da_realloc(t_da *da)
 	}
 }
 
-void	da_append_ptr(t_da *da, const void *ptr)
-{
-	if (da->element_size != sizeof(void *))
-	{
-		fprintf(stderr, "Error: can't add pointer");
-		return;
-	}
-	da_realloc(da);
-	((void **) da->data)[da->len++] = (void *) ptr;
-}
-
 void	da_append(t_da *da, const void *element)
 {
 	da_realloc(da);
