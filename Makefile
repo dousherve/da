@@ -1,39 +1,44 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -I da
+LDFLAGS = -L. -lda
 
-SOURCES = da.c dap.c sb.c
 LIBRARY = libda.a
-
-TEST_SOURCES = test/da_test.c
 TEST = test/da_test
 
+SRC_DIR = src
+TEST_DIR = test
 OBJ_DIR = obj
-OBJECTS = $(addprefix $(OBJ_DIR)/, $(SOURCES:.c=.o))
-TEST_OBJECTS = $(TEST_SOURCES:.c=.o)
 
-all: $(LIBRARY)
+# List of source files for the library
+LIB_SRC = $(wildcard $(SRC_DIR)/*.c)
+LIB_OBJ = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(LIB_SRC))
 
-$(LIBRARY): $(OBJECTS)
-	ar rcs $(LIBRARY) $(OBJECTS)
-	ranlib $(LIBRARY)
+# List of source files for the test program
+TEST_SRC = $(wildcard $(TEST_DIR)/*.c)
+TEST_OBJ = $(patsubst $(TEST_DIR)/%.c,$(OBJ_DIR)/%.o,$(TEST_SRC))
 
-$(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+all: $(LIBRARY) $(TEST)
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
-test: $(TEST) $(LIBRARY)
+$(LIBRARY): $(LIB_OBJ)
+	ar rcs $@ $(LIB_OBJ)
 
-$(TEST): $(TEST_OBJECTS) $(LIBRARY)
-	$(CC) $(CFLAGS) -o $(TEST) $(TEST_OBJECTS) -L. -lda
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-test/%.o: test/%.c
+$(TEST): $(TEST_OBJ) | $(LIBRARY)
+	$(CC) $(CFLAGS) -o $@ $(TEST_OBJ) $(LDFLAGS)
+
+$(OBJ_DIR)/%.o: $(TEST_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(LIBRARY) $(OBJ_DIR) $(TEST) $(TEST_OBJECTS)
+	rm -rf $(LIBRARY) $(TEST) $(OBJ_DIR)
+
+test: $(TEST)
 
 re: clean all
 
-.PHONY: all test clean re
+.PHONY: all clean test re

@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../da.h"
-#include "../dap.h"
-#include "../sb.h"
+#include "../da/da.h"
+#include "../da/dap.h"
+#include "../da/sb.h"
 
 typedef struct s_response
 {
