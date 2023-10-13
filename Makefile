@@ -23,7 +23,7 @@ $(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
-test: $(TEST)
+test: $(TEST) $(LIBRARY)
 
 $(TEST): $(TEST_OBJECTS) $(LIBRARY)
 	$(CC) $(CFLAGS) -o $(TEST) $(TEST_OBJECTS) -L. -lda

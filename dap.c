@@ -79,5 +79,6 @@ void	dap_free(t_dap *dap)
 
 void dap_dump(t_dap *dap)
 {
-	printf("dap: len = %zu, capacity = %zu\n", dap->len, dap->capacity);
+	printf("dap: len = %zu, capacity = %zu bytes (%zu pointers)\n"
+		, dap->len, dap->capacity, dap->capacity / sizeof(void *));
 }

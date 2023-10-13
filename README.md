@@ -1,4 +1,6 @@
 # da
-Simple C library to handle dynamic arrays.
+Simple C library to work with dynamic arrays.
 
-Provides String Builder functionality with macros and functions that operate on a `struct s_da` of `char *`.
+`struct s_da` and `da_`-prefixed functions: consecutive memory.
+`struct s_dap` and `dap_`-prefixed functions: consecutive memory containing pointers
+`struct s_sb` and `sb_`-prefixed functions/macros: String builder using a `struct s_dap`
