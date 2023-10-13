@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -I da
+CFLAGS = -Wall -Wextra -Werror -I da -g -O0
 LDFLAGS = -L. -lda
 
 LIBRARY = libda.a
