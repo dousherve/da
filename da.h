@@ -16,6 +16,7 @@ typedef struct s_da
 }	t_da;
 
 t_da	*da_init(size_t size);
+void	da_append_ptr(t_da *da, const void *ptr);
 void	da_append(t_da *da, const void *element);
 void	da_append_arr(t_da *da, const void *elements, size_t count);
 void	da_append_many_null(t_da *da, ...);
