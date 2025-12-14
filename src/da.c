@@ -1,0 +1,141 @@
+#include <stdlib.h>
+#include <limits.h>
+
+#include "da.h"
+
+static const size_t DA_MIN_CAP = 4;
+static const size_t DA_SHRINK_DIV = 4;
+
+da_err_t	da_init(da_t *da, size_t init_cap, da_destructor_fn destroy)
+{
+	if (da == NULL)
+		return (DA_ERR_NULL);
+
+	*da = (da_t) {0};
+
+	if (init_cap < DA_MIN_CAP)
+		init_cap = DA_MIN_CAP;
+
+	da->data = malloc(init_cap * sizeof(*da->data));
+	if (da->data == NULL)
+		return (DA_ERR_OOM);
+
+	da->capacity = init_cap;
+	da->destroy = destroy;
+
+	return (DA_OK);
+}
+
+void	da_free(da_t *da)
+{
+	size_t	i;
+
+	if (da == NULL)
+		return;
+
+	if (da->destroy)
+		for (i = 0; i < da->size; ++i)
+			da->destroy(da->data[i]);
+
+	free(da->data);
+	*da = (da_t) {0};
+}
+
+/* Must call `da_init` first. Otherwise, behavior is undefined. */
+da_err_t	da_push(da_t *da, void *elem)
+{
+	void	**new_data;
+	size_t	new_capacity;
+
+	if (da == NULL)
+		return (DA_ERR_NULL);
+
+	if (da->size == da->capacity)
+	{
+		if (da->capacity >= SIZE_MAX / 2)
+			return (DA_ERR_OOM);
+		new_capacity = da->capacity * 2;
+
+		if (new_capacity >= SIZE_MAX / sizeof(*da->data))
+			return (DA_ERR_OOM);
+		new_data = realloc(da->data, new_capacity * sizeof(*da->data));
+		if (new_data == NULL)
+			return (DA_ERR_OOM);
+
+		da->data = new_data;
+		da->capacity = new_capacity;
+	}
+
+	da->data[da->size++] = elem;
+	return (DA_OK);
+}
+
+da_err_t	da_pop(da_t *da, void **out)
+{
+	void	**new_data;
+	size_t	new_capacity;
+
+	if (da == NULL || out == NULL)
+		return (DA_ERR_NULL);
+	if (da->size == 0)
+		return (DA_ERR_EMPTY);
+
+	*out = da->data[--da->size];
+
+	if (da->capacity > DA_MIN_CAP && da->size <= da->capacity / DA_SHRINK_DIV)
+	{
+		new_capacity = da->capacity / 2;
+		new_data = realloc(da->data, new_capacity * sizeof(*da->data));
+		if (new_data)
+		{
+			da->data = new_data;
+			da->capacity = new_capacity;
+		}
+	}
+
+	return (DA_OK);
+}
+
+da_err_t	da_get(const da_t *da, size_t index, void **out)
+{
+	if (da == NULL || out == NULL)
+		return (DA_ERR_NULL);
+	if (index >= da->size)
+		return (DA_ERR_OOB);
+
+	*out = da->data[index];
+
+	return (DA_OK);
+}
+
+da_err_t	da_set(da_t *da, size_t index, void *elem)
+{
+	if (da == NULL)
+		return (DA_ERR_NULL);
+	if (index >= da->size)
+		return (DA_ERR_OOB);
+
+	if (da->destroy && da->data[index])
+		da->destroy(da->data[index]);
+
+	da->data[index] = elem;
+
+	return (DA_OK);
+}
+
+size_t	da_size(const da_t *da)
+{
+	if (da == NULL)
+		return (0);
+
+	return (da->size);
+}
+
+size_t	da_capacity(const da_t *da)
+{
+	if (da == NULL)
+		return (0);
+
+	return (da->capacity);
+}
+
