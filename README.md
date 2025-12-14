@@ -1,6 +1,6 @@
 # libda — Dynamic Array Library in C
 
-`libda` is a small, robust, reusable **dynamic array (vector-like) library written in C11**.
+`libda` is a small, robust, reusable **dynamic array (vector-like) library written in C11**.  
 It is designed as a learning project focused on **correct memory management, ownership discipline, and API design**, while still being suitable for use in real projects.
 
 ---
