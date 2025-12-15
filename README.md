@@ -10,6 +10,7 @@ It is designed as a learning project focused on **correct memory management, own
 * Generic container (`void *` elements)
 * Explicit ownership model via optional destructor callback
 * Automatic resizing (grow and shrink)
+* Insert and remove at arbitrary positions
 * Safe, explicit error handling via error codes
 * Debug- and release-ready build system
 * Sanitizer- and leak-check friendly
@@ -36,9 +37,11 @@ typedef struct {
     size_t capacity;
     da_destructor_fn destroy;
 } da_t;
-```
+````
 
-### Lifecycle
+---
+
+## Lifecycle
 
 ```c
 da_err_t da_init(da_t *da, size_t initial_capacity,
@@ -53,24 +56,29 @@ void     da_free(da_t *da);
 
 ---
 
-### Core Operations
+## Core Operations
 
 ```c
 da_err_t da_push(da_t *da, void *elem);
 da_err_t da_pop(da_t *da, void **out);
 
+da_err_t da_insert(da_t *da, size_t index, void *elem);
+da_err_t da_remove(da_t *da, size_t index, void **out);
+
 da_err_t da_get(const da_t *da, size_t index, void **out);
 da_err_t da_set(da_t *da, size_t index, void *elem);
 ```
 
-* `da_push` appends to the end.
+* `da_push` appends an element to the end.
 * `da_pop` removes the last element and returns ownership to the caller.
-* `da_get` reads without modifying the array.
+* `da_insert` inserts an element at the specified index (shifting elements as needed).
+* `da_remove` removes the element at the specified index and returns ownership to the caller.
+* `da_get` reads an element without modifying the array.
 * `da_set` replaces an element in-place and calls the destructor on the old element if one is provided.
 
 ---
 
-### Capacity Management
+## Capacity Management
 
 * Capacity grows by **×2** when full.
 * Capacity shrinks by **÷2** when `size <= capacity / 4`.
@@ -79,7 +87,7 @@ da_err_t da_set(da_t *da, size_t index, void *elem);
 
 ---
 
-### Utility Functions
+## Utility Functions
 
 ```c
 size_t da_size(const da_t *da);
@@ -93,18 +101,24 @@ size_t da_capacity(const da_t *da);
 ## Ownership Rules
 
 * The array stores raw pointers (`void *`).
+
 * The array **does not own elements by default**.
+
 * If a destructor callback is provided:
 
   * It is called when:
 
     * an element is overwritten via `da_set`
     * the array is destroyed via `da_free`
+
   * It is **not** called on:
 
     * `da_pop`
-    * `da_remove` (when implemented)
-* Ownership of elements returned by `da_pop` (and `da_remove`) transfers to the caller.
+    * `da_remove`
+
+* Ownership of elements returned by `da_pop` and `da_remove` transfers to the caller.
+
+Correct ownership handling is the caller’s responsibility.
 
 ---
 
@@ -170,6 +184,7 @@ build/
   ```sh
   make leaks
   ```
+
 * **Linux**
 
   ```sh
@@ -185,10 +200,11 @@ All tests are expected to pass with **zero leaks**.
 The test suite includes:
 
 * Unit tests for all operations
-* Destructor/ownership verification
+* Destructor and ownership verification
+* Insert/remove correctness tests
 * Stress tests (1M operations)
-* Randomized model-based tests
-* Shrink/grow behavior checks
+* Randomized model-based testing
+* Shrink/grow behavior validation
 
 Tests are written in plain C with no external frameworks.
 
@@ -197,5 +213,6 @@ Tests are written in plain C with no external frameworks.
 ## Status
 
 * ✔ Dynamic array core complete
-* ✔ Insert/remove extensions in progress
-* ✔ Level 2.5 of a structured C mastery roadmap
+* ✔ Insert/remove operations implemented
+* ✔ Extensive test coverage with sanitizers and leak checks
+* ✔ Level 2.5 of a structured C mastery roadmap complete
