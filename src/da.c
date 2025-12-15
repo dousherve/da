@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <limits.h>
 
 #include "da.h"
@@ -41,50 +42,52 @@ void	da_free(da_t *da)
 	*da = (da_t) {0};
 }
 
-/* Must call `da_init` first. Otherwise, behavior is undefined. */
-da_err_t	da_push(da_t *da, void *elem)
+static da_err_t	da_ensure_capacity(da_t *da, size_t min_capacity)
 {
 	void	**new_data;
 	size_t	new_capacity;
 
-	if (da == NULL)
-		return (DA_ERR_NULL);
+	if (min_capacity < DA_MIN_CAP)
+		min_capacity = DA_MIN_CAP;
 
-	if (da->size == da->capacity)
+	if (da->capacity >= min_capacity)
+		return (DA_OK);
+
+	if (da->capacity < DA_MIN_CAP)
+		new_capacity = DA_MIN_CAP;
+	else
+		new_capacity = da->capacity;
+
+	while (new_capacity < min_capacity)
 	{
-		if (da->capacity >= SIZE_MAX / 2)
+		if (new_capacity > SIZE_MAX / 2)
 			return (DA_ERR_OOM);
-		new_capacity = da->capacity * 2;
-
-		if (new_capacity >= SIZE_MAX / sizeof(*da->data))
-			return (DA_ERR_OOM);
-		new_data = realloc(da->data, new_capacity * sizeof(*da->data));
-		if (new_data == NULL)
-			return (DA_ERR_OOM);
-
-		da->data = new_data;
-		da->capacity = new_capacity;
+		new_capacity *= 2;
 	}
 
-	da->data[da->size++] = elem;
+	if (new_capacity > SIZE_MAX / sizeof(*da->data))
+		return (DA_ERR_OOM);
+	new_data = realloc(da->data, new_capacity * sizeof(*da->data));
+	if (new_data == NULL)
+		return (DA_ERR_OOM);
+
+	da->data = new_data;
+	da->capacity = new_capacity;
+
 	return (DA_OK);
 }
 
-da_err_t	da_pop(da_t *da, void **out)
+static void	da_try_shrink(da_t *da)
 {
 	void	**new_data;
 	size_t	new_capacity;
-
-	if (da == NULL || out == NULL)
-		return (DA_ERR_NULL);
-	if (da->size == 0)
-		return (DA_ERR_EMPTY);
-
-	*out = da->data[--da->size];
 
 	if (da->capacity > DA_MIN_CAP && da->size <= da->capacity / DA_SHRINK_DIV)
 	{
 		new_capacity = da->capacity / 2;
+		if (new_capacity < DA_MIN_CAP)
+			new_capacity = DA_MIN_CAP;
+
 		new_data = realloc(da->data, new_capacity * sizeof(*da->data));
 		if (new_data)
 		{
@@ -92,6 +95,83 @@ da_err_t	da_pop(da_t *da, void **out)
 			da->capacity = new_capacity;
 		}
 	}
+}
+
+/* Must call `da_init` first. Otherwise, behavior is undefined. */
+da_err_t	da_push(da_t *da, void *elem)
+{
+	da_err_t	err;
+
+	if (da == NULL)
+		return (DA_ERR_NULL);
+
+	err = da_ensure_capacity(da, da->size + 1);
+	if (err != DA_OK)
+		return (err);
+
+	da->data[da->size++] = elem;
+	return (DA_OK);
+}
+
+da_err_t	da_pop(da_t *da, void **out)
+{
+	if (da == NULL || out == NULL)
+		return (DA_ERR_NULL);
+	if (da->size == 0)
+		return (DA_ERR_EMPTY);
+
+	*out = da->data[--da->size];
+	da_try_shrink(da);
+
+	return (DA_OK);
+}
+
+da_err_t	da_insert(da_t *da, size_t index, void *elem)
+{
+	da_err_t	err;
+
+	if (da == NULL)
+		return (DA_ERR_NULL);
+	if (index > da->size)
+		return (DA_ERR_OOB);
+
+	err = da_ensure_capacity(da, da->size + 1);
+	if (err != DA_OK)
+		return (err);
+
+	if (index < da->size)
+		memmove(
+				da->data + index + 1,
+				da->data + index,
+				(da->size - index) * sizeof(*da->data)
+		);
+
+	da->data[index] = elem;
+	++da->size;
+
+	return (DA_OK);
+}
+
+da_err_t	da_remove(da_t *da, size_t index, void **out)
+{
+	if (da == NULL || out == NULL)
+		return (DA_ERR_NULL);
+	if (da->size == 0)
+		return (DA_ERR_EMPTY);
+	if (index >= da->size)
+		return (DA_ERR_OOB);
+
+	*out = da->data[index];
+
+	if (index < da->size - 1)
+		memmove(
+				da->data + index,
+				da->data + index + 1,
+				(da->size - index - 1) * sizeof(*da->data)
+		);
+
+	--da->size;
+	da_try_shrink(da);
 
 	return (DA_OK);
 }

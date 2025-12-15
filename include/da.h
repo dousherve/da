@@ -31,6 +31,8 @@ void		da_free(da_t *da);
 /* Must call da_init first. Otherwise, behavior is undefined. */
 da_err_t	da_push(da_t *da, void *elem);
 da_err_t	da_pop(da_t *da, void **out);
+da_err_t	da_insert(da_t *da, size_t index, void *elem);
+da_err_t	da_remove(da_t *da, size_t index, void **out);
 da_err_t	da_get(const da_t *da, size_t index, void **out);
 da_err_t	da_set(da_t *da, size_t index, void *elem);
 
