@@ -1,6 +1,7 @@
-# libda — Dynamic Array Library in C
+# da — Dynamic Array implementation in C
 
-`libda` is a small, robust, reusable **dynamic array (vector-like) library written in C11**.  
+`da` is a small, robust, reusable **dynamic array (vector-like) module written in C11**.  
+It can be built as `libda.a`, but is intended to be vendored/compiled directly in most projects.  
 It is designed as a learning project focused on **correct memory management, ownership discipline, and API design**, while still being suitable for use in real projects.
 
 ---
